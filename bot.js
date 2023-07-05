@@ -34,17 +34,17 @@ function sendMessage(messagebody) {
 }
 
 function readMessage() {
-  var result;
-  result = window.bot_messages.children[window.bot_messages.children.length - 1].innerText.replaceAll("New", "").replaceAll("Now", "").replaceAll("\nEdited\n", "").split(",\n")[2];
-  if (result) {
-  	currentSender = window.bot_messages.children[window.bot_messages.children.length - 1].innerText.replaceAll("New", "").replaceAll("Now", "").replaceAll("\nEdited\n", "").split(",\n")[0].replaceAll("\n", "");
-  	return result.replaceAll("\n", "");
-  }
-  
-  result = window.bot_messages.children[window.bot_messages.children.length - 1].innerText.replaceAll("New", "").replaceAll("Now", "").replaceAll("\nEdited\n", "").split(",\n")[0];
-  if (result) return result.replaceAll("\n", "");
-  
-  return false;
+	var result;
+	result = window.bot_messages.children[window.bot_messages.children.length - 1].innerText.replaceAll("New", "").replaceAll("Now", "").replaceAll("\nEdited\n", "").split(",\n")[2];
+	if (result) {
+		currentSender = window.bot_messages.children[window.bot_messages.children.length - 1].innerText.replaceAll("New", "").replaceAll("Now", "").replaceAll("\nEdited\n", "").split(",\n")[0].replaceAll("\n", "");
+		return result.replaceAll("\n", "");
+	}
+	
+	result = window.bot_messages.children[window.bot_messages.children.length - 1].innerText.replaceAll("New", "").replaceAll("Now", "").replaceAll("\nEdited\n", "").split(",\n")[0];
+	if (result) return result.replaceAll("\n", "");
+	
+	return false;
 }
 
 // Main code
@@ -52,10 +52,10 @@ function readMessage() {
 function onNewMessage() {
 	// Run on new message
 
-  // Check for slash, indicating command to bot
-  if (Array.from(readMessage())[0] == "/") {
+	// Check for slash, indicating command to bot
+	if (Array.from(readMessage())[0] == "/") {
 	 sendMessage("Above message is a message!");
-  }
+	}
 }
 
 function main() {
