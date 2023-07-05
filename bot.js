@@ -3,6 +3,13 @@
 
 const MESSAGE_DELAY = 1000;
 const observer = new MutationObserver(onNewMessage);
+let HTMLPolicy;
+
+if (window.trustedTypes) {
+	HTMLPolicy = trustedTypes.createPolicy("HTMLPolicy", {
+		createHTML: (string) => string,
+	});
+}
 
 var currentSender = null;
 
@@ -26,7 +33,12 @@ function simulateClick(element) {
 }
 
 function sendMessage(messagebody) {
-	window.bot_textbox.innerHTML = messagebody;
+	if (window.trustedTypes) {
+		window.bot_textbox.innerHTML = HTMLPolicy.createHTML(messagebody);
+	} else {
+		window.bot_textbox.innerHTML = messagebody;
+	}
+
 	setTimeout(function() {
 		window.bot_textbox.focus();
 		simulateClick(window.bot_sendbutton);
