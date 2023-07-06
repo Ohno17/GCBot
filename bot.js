@@ -61,17 +61,50 @@ function readMessage() {
 
 // Main code
 
+function isPositiveInteger(value) {
+    return /^\d+$/.test(value);
+}
+
 function onNewMessage() {
 	// Run on new message
-
 	// Check for slash, indicating command to bot
-	if (Array.from(readMessage())[0] == "/") {
-	 sendMessage("Above message is a message!");
+	const message = readMessage();
+	if (Array.from(message)[0] == "/") {
+		const command = message.substring(1).split(" ");
+
+		// command[0] is the command name, command [1 to infinity] is for parameters to that command
+
+		switch (command[0]) {
+			case "help":
+				sendMessage("Commands: /help, /dice (max), /hello");
+				break;
+			case "hello":
+				// Say hello
+				sendMessage("Hello!");
+				break;
+			case "dice":
+				// Roll a dice with specified max, otherwise max is 6.
+				var max;
+				if (command[1] && isPositiveInteger(command[1])) {
+					max = command[1];
+				} else {
+					max = 6;
+				}
+
+				const result = Math.round(Math.random() * max);
+				sendMessage("You rolled a " + result + "!");
+				break;
+			default:
+				sendMessage("I didn't understand that!");
+				break;
+	 }
 	}
 }
 
 function main() {
 	// Run on start
+	console.log("Bot Started.");
+	sendMessage("I am OkBot! Type /help for a list of commands.");
 }
 
 function startBot() {
