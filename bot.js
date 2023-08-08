@@ -17,6 +17,7 @@ if (window.trustedTypes) {
 }
 
 var currentSender = null;
+var pollHistory = [];
 var currentPoll = null;
 var eggCounter = 0;
 
@@ -136,10 +137,11 @@ function selectCommand(command) {
 			var preparedoptions = [];
 
 			for (var i = 0; i < polloptions.length; i++) {
-				preparedoptions.push([polloptions[i], 0]);
+				preparedoptions.push([polloptions[i].replaceAll("+", " "), 0, []]);
 			}
 
 			currentPoll = {title: command[1].replaceAll("+", " "), options: preparedoptions, voters: []}
+			pollHistory.push(JSON.stringify(currentPoll));
 			sendMessage("Made a poll: '" + currentPoll.title + "'\nUse '/pollhelp' for information about this poll!");
 
 			break;
@@ -168,18 +170,43 @@ function selectCommand(command) {
 				return;
 			}
 
-			if ((parseInt(command[1]) - 1) > (currentPoll.options.length - 1) || !(parseInt(command[1]) > 0)) {
+			const realOption = parseInt(command[1]) - 1;
+
+			if (realOption > (currentPoll.options.length - 1) || !(parseInt(command[1]) > 0)) {
 				sendMessage("This option doesn't exist!");
 				return;
 			}
 
-			currentPoll.options[parseInt(command[1]) - 1][1]++;
-			sendMessage("Voted for: '" + currentPoll.options[parseInt(command[1]) - 1][0] + "'");
+			var voted = false;
+			for (var i = 0; i < currentPoll.options.length; i++) {
+				if (realOption != i) {
+					const voterindex = currentPoll.options[i][2].indexOf(currentSender);
+					if (voterindex != -1) {
+						voted = true;
+
+						currentPoll.options[i][1]--;
+						currentPoll.options[i][2].splice(voterindex, 1);
+
+						currentPoll.options[realOption][1]++;
+						currentPoll.options[realOption][2].push(currentSender);
+					}
+				}
+			}
+
+			if (!voted) {
+				currentPoll.voters.push(currentSender);
+				currentPoll.options[realOption][2].push(currentSender);
+			}
+
+			currentPoll.options[realOption][1]++;
+			pollHistory.push(JSON.stringify(currentPoll));
+			sendMessage("Voted for: '" + currentPoll.options[realOption][0] + "'");
 			break;
 		case "deletepoll":
 			if (currentPoll == null) {
 				sendMessage("There is no active poll!");
 			} else {
+				pollHistory.push(JSON.stringify(currentPoll));
 				currentPoll = null;
 				sendMessage("Poll deleted!");
 			}
@@ -216,6 +243,7 @@ function main() {
 
 function startBot(silence) {
 	if (findButtonAndTextBox()) throw Error("Required elements not found.");
+
 	addMessageListener();
 	if (!silence) {
 		main();
