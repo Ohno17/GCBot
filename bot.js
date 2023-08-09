@@ -3,8 +3,9 @@
 
 const MESSAGE_DELAY = 1000;
 const observer = new MutationObserver(onNewMessage);
+const anonymousPoll = true;
 const advice = [
-	"Advice."
+	"Advice"
 ];
 let HTMLPolicy;
 
@@ -129,7 +130,7 @@ function selectCommand(command) {
 			}
 
 			if (!command[1] || !command[2] || !command[3]) {
-				sendMessage("This command is malformed!");
+				sendMessage("The first three arguments must be: (polltitle) (option1) (option2). Arguments after that are optional.\nRemember that you can use '+' to signify a space.");
 				return;
 			}
 
@@ -154,7 +155,11 @@ function selectCommand(command) {
 			var pollinfostring = "'" + currentPoll.title + "'\n\n";
 
 			for (var i = 0; i < currentPoll.options.length; i++) {
-				pollinfostring += "Option " + (i + 1) + ": '" + currentPoll.options[i][0] + "' (Vote for this using '/pollvote " + (i + 1) + "')\n"
+				if (!anonymousPoll) {
+					pollinfostring += "Option " + (i + 1) + ": '" + currentPoll.options[i][0] + "' " + currentPoll.options[i][1] + " Votes (Vote for this using '/pollvote " + (i + 1) + "')\n";
+				} else {
+					pollinfostring += "Option " + (i + 1) + ": '" + currentPoll.options[i][0] + "' (Vote for this using '/pollvote " + (i + 1) + "')\n";
+				}
 			}
 
 			sendMessage(pollinfostring);
@@ -196,11 +201,15 @@ function selectCommand(command) {
 			if (!voted) {
 				currentPoll.voters.push(currentSender);
 				currentPoll.options[realOption][2].push(currentSender);
+				currentPoll.options[realOption][1]++;
 			}
-
-			currentPoll.options[realOption][1]++;
+			
 			pollHistory.push(JSON.stringify(currentPoll));
-			sendMessage("Voted for: '" + currentPoll.options[realOption][0] + "'");
+			if (anonymousPoll) { 
+				sendMessage("Voted.");
+			} else {
+				sendMessage("Voted for: '" + currentPoll.options[realOption][0] + "'");
+			}
 			break;
 		case "deletepoll":
 			if (currentPoll == null) {
