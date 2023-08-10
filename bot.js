@@ -3,7 +3,6 @@
 
 const MESSAGE_DELAY = 1000;
 const observer = new MutationObserver(onNewMessage);
-const anonymousPoll = true;
 const advice = [
 	"Advice"
 ];
@@ -17,6 +16,7 @@ if (window.trustedTypes) {
 	});
 }
 
+var anonymousPoll = true;
 var currentSender = null;
 var pollHistory = [];
 var currentPoll = null;
@@ -123,6 +123,18 @@ function selectCommand(command) {
 		case "myname":
 			sendMessage("Your name is: '" + currentSender + "'");
 			break;
+		case "anonpoll":
+			if (currentPoll != null) {
+				sendMessage("Cannot do this while a poll is active!");
+				return;
+			}
+
+			if (command[1]) {
+				anonymousPoll = (command[1] == "on" ? true : false)
+			} else {
+				sendMessage("Please enter the command properly!");
+			}
+			break;
 		case "createpoll":
 			if (currentPoll != null) {
 				sendMessage("There is already an active poll!");
@@ -184,17 +196,15 @@ function selectCommand(command) {
 
 			var voted = false;
 			for (var i = 0; i < currentPoll.options.length; i++) {
-				if (realOption != i) {
-					const voterindex = currentPoll.options[i][2].indexOf(currentSender);
-					if (voterindex != -1) {
-						voted = true;
+				const voterindex = currentPoll.options[i][2].indexOf(currentSender);
+				if (voterindex != -1) {
+					voted = true;
 
-						currentPoll.options[i][1]--;
-						currentPoll.options[i][2].splice(voterindex, 1);
+					currentPoll.options[i][1]--;
+					currentPoll.options[i][2].splice(voterindex, 1);
 
-						currentPoll.options[realOption][1]++;
-						currentPoll.options[realOption][2].push(currentSender);
-					}
+					currentPoll.options[realOption][1]++;
+					currentPoll.options[realOption][2].push(currentSender);
 				}
 			}
 
